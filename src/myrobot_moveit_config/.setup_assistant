@@ -1,0 +1,23 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: myrobot_description
+    relative_path: urdf/myrobot_urdf.xacro
+  srdf:
+    relative_path: config/my_robot.srdf
+  package_settings:
+    author_name: asan
+    author_email: asan@todo.com
+    generated_timestamp: 1786598330
+  control_xacro:
+    command:
+      - position
+    state:
+      - position
+  modified_urdf:
+    xacros:
+      - control_xacro
+  control_xacro:
+    command:
+      - position
+    state:
+      - position

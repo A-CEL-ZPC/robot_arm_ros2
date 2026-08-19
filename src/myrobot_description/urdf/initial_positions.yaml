@@ -1,0 +1,11 @@
+# 机械臂关节初始位置（唯一来源，被 my_robot.ros2_control.xacro 宏读取）
+# 修改这里的值即可改变机器人上电时的关节初始位姿，无需改动 xacro 或重新 build 描述包
+
+initial_positions:
+  gripper_left_finger_joint: 0
+  joint1: 0
+  joint2: 0
+  joint3: 0
+  joint4: 0
+  joint5: 0
+  joint6: 0

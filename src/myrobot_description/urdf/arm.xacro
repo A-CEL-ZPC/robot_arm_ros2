@@ -1,0 +1,176 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!-- 底座 -->
+    <link name="base_link">
+        <visual>
+            <geometry>
+            <!-- 40*40*10cm长方体 -->
+                <box size="0.4 0.4 0.1"/> 
+            </geometry>
+            <origin xyz="0 0 0.05" rpy="0.0 0.0 0.0"/>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <geometry>
+            <!-- 40*40*10cm长方体 -->
+                <box size="0.4 0.4 0.1"/> 
+            </geometry>
+            <origin xyz="0 0 0.05" rpy="0.0 0.0 0.0"/>            
+        </collision>
+    </link>
+    <!-- 第一个轴 -->
+    <link name="shoulder_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.1" length="0.5"/>
+            </geometry>
+            <origin xyz = "0 0 0.25" rpy="0 0 0"/>
+            <material name="red"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.2 0.2 0.5" />
+            </geometry>
+            <origin xyz = "0 0 0.25" rpy="0 0 0"/>            
+        </collision>
+    </link>
+    <!-- 第2个轴 -->
+    <link name="arm_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.05" length="0.6"/>
+            </geometry>
+            <origin xyz = "0 0 0.3" rpy="0 0 0"/>
+            <material name="yellow"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.1 0.1 0.6" />
+            </geometry>
+            <origin xyz = "0 0 0.3" rpy="0 0 0"/>                   
+        </collision>
+    </link>
+    <!-- 第3个轴 -->
+    <link name="elbow_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.05" length="0.1"/>
+            </geometry>
+            <origin xyz = "0 0 0.05" rpy="0 0 0"/>
+            <material name="purple"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.1 0.1 0.1" />
+            </geometry>
+            <origin xyz = "0 0 0.05" rpy="0 0 0"/>                    
+        </collision>
+    </link>
+    <!-- 第4个轴 -->
+    <link name="forearm_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.05" length="0.5"/>
+            </geometry>
+            <origin xyz = "0 0 0.25" rpy="0 0 0"/>
+            <material name="yellow"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.1 0.1 0.5" />
+            </geometry>
+            <origin xyz = "0 0 0.25" rpy="0 0 0"/>                    
+        </collision>
+    </link>
+    <!-- 第5个轴 -->
+    <link name="wrist_link">
+        <visual>
+            <geometry>
+            <!-- 10*10*5cm长方体 -->
+                <box size="0.1 0.1 0.05"/> 
+            </geometry>
+            <origin xyz="0 0 0.025" rpy="0.0 0.0 0.0"/>
+            <material name="purple"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.1 0.1 0.05" />
+            </geometry>
+            <origin xyz = "0 0 0.025" rpy="0 0 0"/>                    
+        </collision>
+    </link>
+    <!-- 第6个轴 -->
+    <link name="hand_link">
+        <visual>
+            <geometry>
+            <!-- 10*10*5cm长方体 -->
+                <box size="0.1 0.1 0.02"/> 
+            </geometry>
+            <origin xyz="0 0 0.01" rpy="0.0 0.0 0.0"/>
+            <material name="yellow"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="0.1 0.1 0.02" />
+            </geometry>
+            <origin xyz = "0 0 0.01" rpy="0 0 0"/>                    
+        </collision>
+    </link>
+    <!-- 模拟夹抓工具 -->
+    <link name="tool_link">
+        
+    </link>
+
+    <joint name="joint1" type="revolute">    <!--可旋转-->
+        <parent link="base_link"/>
+        <child link="shoulder_link"/>
+        <origin xyz="0.0 0.0 0.1" rpy="0.0 0.0 0.0"/>
+        <axis xyz="0 0.0 1"/>
+        <limit lower="-3.14" upper="3.140" effort="1000.0" velocity="1.0"/>
+    </joint>
+
+    <joint name="joint2" type="revolute">
+        <parent link="shoulder_link"/>
+        <child link="arm_link"/>
+        <origin xyz="0.0 0.0 0.5" rpy="0.0 0.0 0.0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="0" upper="2.5" effort="1000.0" velocity="1.0"/>
+    </joint>   
+    <joint name="joint3" type="revolute">
+        <parent link="arm_link"/>
+        <child link="elbow_link"/>
+        <origin xyz="0.0 0.0 0.6" rpy="0.0 0.0 0.0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="0" upper="2.5" effort="1000.0" velocity="1.0"/>
+    </joint>  
+    <joint name="joint4" type="revolute">
+        <parent link="elbow_link"/>
+        <child link="forearm_link"/>
+        <origin xyz="0.0 0.0 0.1" rpy="0.0 0.0 0.0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="-3.14" upper="3.14" effort="1000.0" velocity="1.0"/>
+    </joint>
+    <joint name="joint5" type="revolute">
+        <parent link="forearm_link"/>
+        <child link="wrist_link"/>
+        <origin xyz="0.0 0.0 0.5" rpy="0.0 0.0 0.0"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="-1.57" upper="1.57" effort="1000.0" velocity="1.0"/>
+    </joint>
+    <joint name="joint6" type="continuous">
+        <parent link="wrist_link"/>
+        <child link="hand_link"/>
+        <origin xyz="0.0 0.0 0.05" rpy="0.0 0.0 0.0"/>
+        <axis xyz="0 0 1"/>
+    </joint>
+    <joint name="hand_tool_joint" type="fixed">
+        <parent link="hand_link"/>
+        <child link="tool_link"/>
+        <origin xyz="0.0 0.0 0.02" rpy="0.0 0.0 0.0"/>        
+    </joint>
+</robot>
+
+
+
+<!-- sudo apt install ros-humble-urdf-tutorial -->
+<!-- ros2 launch urdf_tutorial display.launch.py model:=/home/zhz/robot_arm_ws/src/myrobot_description/urdf/arm.urdf -->

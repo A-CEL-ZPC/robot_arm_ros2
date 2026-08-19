@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!--
+        直接使用 myrobot_description 里的唯一模型（含 ros2_control 硬件块）。
+        如需修改初始位置，编辑 myrobot_description/urdf/initial_positions.yaml。
+    -->
+    <xacro:include filename="$(find myrobot_description)/urdf/myrobot_urdf.xacro" />
+</robot>
