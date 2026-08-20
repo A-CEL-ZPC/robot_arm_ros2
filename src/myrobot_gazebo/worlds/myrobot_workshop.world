@@ -1,0 +1,169 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <world name="myrobot_workshop">
+
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- 桌子：桌面高 0.4m，桌面上放目标方块 -->
+    <model name="table">
+      <pose>0.5 0 0 0 0 0</pose>
+
+      <link name="table_top">
+        <pose>0 0 0.4 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>0.6 0.6 0.05</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.6 0.6 0.05</size></box>
+          </geometry>
+          <material>
+            <ambient>0.65 0.45 0.2 1</ambient>
+            <diffuse>0.65 0.45 0.2 1</diffuse>
+          </material>
+        </visual>
+        <inertial>
+          <mass>5</mass>
+          <inertia>
+            <ixx>0.305</ixx><iyy>0.305</iyy><izz>0.5</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+      </link>
+
+      <link name="table_leg1">
+        <pose>-0.25 0.25 0.2 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>0.05 0.05 0.4</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.05 0.05 0.4</size></box>
+          </geometry>
+        </visual>
+        <inertial>
+          <mass>0.5</mass>
+          <inertia>
+            <ixx>0.017</ixx><iyy>0.017</iyy><izz>0.0002</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+      </link>
+      <link name="table_leg2">
+        <pose>0.25 0.25 0.2 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>0.05 0.05 0.4</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.05 0.05 0.4</size></box>
+          </geometry>
+        </visual>
+        <inertial>
+          <mass>0.5</mass>
+          <inertia>
+            <ixx>0.017</ixx><iyy>0.017</iyy><izz>0.0002</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+      </link>
+      <link name="table_leg3">
+        <pose>-0.25 -0.25 0.2 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>0.05 0.05 0.4</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.05 0.05 0.4</size></box>
+          </geometry>
+        </visual>
+        <inertial>
+          <mass>0.5</mass>
+          <inertia>
+            <ixx>0.017</ixx><iyy>0.017</iyy><izz>0.0002</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+      </link>
+      <link name="table_leg4">
+        <pose>0.25 -0.25 0.2 0 0 0</pose>
+        <collision name="collision">
+          <geometry>
+            <box><size>0.05 0.05 0.4</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.05 0.05 0.4</size></box>
+          </geometry>
+        </visual>
+        <inertial>
+          <mass>0.5</mass>
+          <inertia>
+            <ixx>0.017</ixx><iyy>0.017</iyy><izz>0.0002</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+      </link>
+
+      <joint name="leg1_joint" type="fixed">
+        <parent>table_top</parent>
+        <child>table_leg1</child>
+      </joint>
+      <joint name="leg2_joint" type="fixed">
+        <parent>table_top</parent>
+        <child>table_leg2</child>
+      </joint>
+      <joint name="leg3_joint" type="fixed">
+        <parent>table_top</parent>
+        <child>table_leg3</child>
+      </joint>
+      <joint name="leg4_joint" type="fixed">
+        <parent>table_top</parent>
+        <child>table_leg4</child>
+      </joint>
+    </model>
+
+    <!-- 目标方块：放在桌面上（桌面顶面 z≈0.425，方块中心 z=0.45） -->
+    <model name="target_box">
+      <pose>0.65 0 0.45 0 0 0</pose>
+      <link name="box">
+        <collision name="collision">
+          <geometry>
+            <box><size>0.05 0.05 0.05</size></box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box><size>0.05 0.05 0.05</size></box>
+          </geometry>
+          <material>
+            <ambient>0.8 0.1 0.1 1</ambient>
+            <diffuse>0.8 0.1 0.1 1</diffuse>
+          </material>
+        </visual>
+        <inertial>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.000042</ixx><iyy>0.000042</iyy><izz>0.000042</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
+      </link>
+    </model>
+
+  </world>
+</sdf>

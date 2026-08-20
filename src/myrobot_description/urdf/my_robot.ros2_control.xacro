@@ -3,14 +3,20 @@
     <!--
         统一的 ros2_control 硬件块（宏版，单一来源）。
         关节初始位置由 urdf/initial_positions.yaml 驱动，改初值不需要动 xacro。
+        sim_mode: mock=虚拟硬件 | gazebo=物理仿真（gazebo_ros2_control）
     -->
-    <xacro:macro name="my_robot_ros2_control" params="name initial_positions_file">
+    <xacro:macro name="my_robot_ros2_control"
+                 params="name initial_positions_file sim_mode:=mock">
         <xacro:property name="initial_positions" value="${xacro.load_yaml(initial_positions_file)['initial_positions']}"/>
 
         <ros2_control name="${name}" type="system">
             <hardware>
-                <!-- By default, set up controllers for simulation. This won't work on real hardware -->
-                <plugin>mock_components/GenericSystem</plugin>
+                <xacro:if value="${sim_mode == 'gazebo'}">
+                    <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+                </xacro:if>
+                <xacro:unless value="${sim_mode == 'gazebo'}">
+                    <plugin>mock_components/GenericSystem</plugin>
+                </xacro:unless>
             </hardware>
             <joint name="joint1">
                 <command_interface name="position"/>

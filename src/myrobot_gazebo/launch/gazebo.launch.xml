@@ -1,0 +1,56 @@
+<launch>
+
+    <!-- ============ Gazebo 仿真启动 ============
+         与 myrobot_bringup 的区别：硬件插件用 gazebo_ros2_control/GazeboSystem
+         代替 mock_components/GenericSystem，机械臂受真实物理影响。
+         用法：
+             ros2 launch myrobot_gazebo gazebo.launch.xml
+    -->
+
+    <let name="urdf_path"
+         value="$(find-pkg-share myrobot_description)/urdf/myrobot_urdf.xacro"/>
+
+    <let name="rviz_config_path"
+         value="$(find-pkg-share myrobot_description)/rviz/urdf_config.rviz"/>
+
+    <!-- gui: true=显示 Gazebo 窗口(默认) | false=无头运行 -->
+    <arg name="gui" default="true"/>
+
+    <!-- 1. 机器人模型（sim_mode=gazebo 生成 Gazebo 硬件插件） -->
+    <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
+        <param name="robot_description"
+               value="$(command 'xacro $(var urdf_path) sim_mode:=gazebo')"/>
+    </node>
+
+    <!-- 2. 启动 Gazebo 并加载世界（地面+桌子+目标方块） -->
+    <include file="$(find-pkg-share gazebo_ros)/launch/gazebo.launch.py">
+        <arg name="world"
+             value="$(find-pkg-share myrobot_gazebo)/worlds/myrobot_workshop.world"/>
+        <arg name="gui" value="$(var gui)"/>
+    </include>
+
+    <!-- 3. 把机器人模型放进 Gazebo -->
+    <node pkg="gazebo_ros" exec="spawn_entity.py" output="screen"
+          args="-topic robot_description -entity my_robot -x 0 -y 0 -z 0.001"/>
+
+    <!-- 4. ros2_control 节点（控制 Gazebo 中的机器人） -->
+    <node pkg="controller_manager" exec="ros2_control_node" output="screen">
+        <param name="robot_description"
+               value="$(command 'xacro $(var urdf_path) sim_mode:=gazebo')"/>
+        <param from="$(find-pkg-share myrobot_gazebo)/config/ros2_controllers.yaml"/>
+    </node>
+
+    <!-- 5. 加载控制器 -->
+    <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster"/>
+    <node pkg="controller_manager" exec="spawner" args="arm_controller"/>
+    <node pkg="controller_manager" exec="spawner" args="gripper_controller"/>
+
+    <!-- 6. MoveIt 运动规划（复用 myrobot_moveit_config） -->
+    <include file="$(find-pkg-share myrobot_moveit_config)/launch/move_group.launch.py">
+        <arg name="robot_state_publisher" value="false"/>
+    </include>
+
+    <!-- 7. RViz 可视化 -->
+    <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(var rviz_config_path)"/>
+
+</launch>

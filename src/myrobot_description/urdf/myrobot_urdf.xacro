@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+    <!-- sim_mode: mock=虚拟硬件(默认) | gazebo=物理仿真 -->
+    <xacro:arg name="sim_mode" default="mock"/>
+
     <xacro:include filename="common_properties.xacro"/>
     <xacro:include filename="arm.xacro"/>
     <xacro:include filename="gripper.xacro"/>
@@ -8,7 +11,8 @@
 
     <!-- 生成 ros2_control 硬件块，初始位置从 initial_positions.yaml 读取 -->
     <xacro:my_robot_ros2_control name="Arm"
-         initial_positions_file="$(find myrobot_description)/urdf/initial_positions.yaml"/>
+         initial_positions_file="$(find myrobot_description)/urdf/initial_positions.yaml"
+         sim_mode="$(arg sim_mode)"/>
 
     <joint name="gripper_base_joint" type="fixed">
         <parent link="tool_link"/>

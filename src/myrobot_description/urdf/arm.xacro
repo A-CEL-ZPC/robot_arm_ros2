@@ -17,6 +17,11 @@
             </geometry>
             <origin xyz="0 0 0.05" rpy="0.0 0.0 0.0"/>            
         </collision>
+        <inertial>
+            <mass value="5.0"/>
+            <origin xyz="0 0 0.05" rpy="0 0 0"/>
+            <inertia ixx="0.0708" ixy="0.0" ixz="0.0" iyy="0.0708" iyz="0.0" izz="0.1333"/>
+        </inertial>
     </link>
     <!-- 第一个轴 -->
     <link name="shoulder_link">
@@ -33,6 +38,11 @@
             </geometry>
             <origin xyz = "0 0 0.25" rpy="0 0 0"/>            
         </collision>
+        <inertial>
+            <mass value="2.0"/>
+            <origin xyz="0 0 0.25" rpy="0 0 0"/>
+            <inertia ixx="0.0483" ixy="0.0" ixz="0.0" iyy="0.0483" iyz="0.0" izz="0.0133"/>
+        </inertial>
     </link>
     <!-- 第2个轴 -->
     <link name="arm_link">
@@ -49,6 +59,11 @@
             </geometry>
             <origin xyz = "0 0 0.3" rpy="0 0 0"/>                   
         </collision>
+        <inertial>
+            <mass value="1.0"/>
+            <origin xyz="0 0 0.3" rpy="0 0 0"/>
+            <inertia ixx="0.0308" ixy="0.0" ixz="0.0" iyy="0.0308" iyz="0.0" izz="0.0017"/>
+        </inertial>
     </link>
     <!-- 第3个轴 -->
     <link name="elbow_link">
@@ -65,6 +80,11 @@
             </geometry>
             <origin xyz = "0 0 0.05" rpy="0 0 0"/>                    
         </collision>
+        <inertial>
+            <mass value="0.5"/>
+            <origin xyz="0 0 0.05" rpy="0 0 0"/>
+            <inertia ixx="0.0008" ixy="0.0" ixz="0.0" iyy="0.0008" iyz="0.0" izz="0.0008"/>
+        </inertial>
     </link>
     <!-- 第4个轴 -->
     <link name="forearm_link">
@@ -81,6 +101,11 @@
             </geometry>
             <origin xyz = "0 0 0.25" rpy="0 0 0"/>                    
         </collision>
+        <inertial>
+            <mass value="0.8"/>
+            <origin xyz="0 0 0.25" rpy="0 0 0"/>
+            <inertia ixx="0.0173" ixy="0.0" ixz="0.0" iyy="0.0173" iyz="0.0" izz="0.0013"/>
+        </inertial>
     </link>
     <!-- 第5个轴 -->
     <link name="wrist_link">
@@ -98,6 +123,11 @@
             </geometry>
             <origin xyz = "0 0 0.025" rpy="0 0 0"/>                    
         </collision>
+        <inertial>
+            <mass value="0.3"/>
+            <origin xyz="0 0 0.025" rpy="0 0 0"/>
+            <inertia ixx="0.0003" ixy="0.0" ixz="0.0" iyy="0.0003" iyz="0.0" izz="0.0005"/>
+        </inertial>
     </link>
     <!-- 第6个轴 -->
     <link name="hand_link">
@@ -115,10 +145,19 @@
             </geometry>
             <origin xyz = "0 0 0.01" rpy="0 0 0"/>                    
         </collision>
+        <inertial>
+            <mass value="0.2"/>
+            <origin xyz="0 0 0.01" rpy="0 0 0"/>
+            <inertia ixx="0.0002" ixy="0.0" ixz="0.0" iyy="0.0002" iyz="0.0" izz="0.0003"/>
+        </inertial>
     </link>
     <!-- 模拟夹抓工具 -->
     <link name="tool_link">
-        
+        <inertial>
+            <mass value="0.01"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia ixx="0.0000002" ixy="0.0" ixz="0.0" iyy="0.0000002" iyz="0.0" izz="0.0000002"/>
+        </inertial>
     </link>
 
     <joint name="joint1" type="revolute">    <!--可旋转-->
@@ -170,7 +209,3 @@
     </joint>
 </robot>
 
-
-
-<!-- sudo apt install ros-humble-urdf-tutorial -->
-<!-- ros2 launch urdf_tutorial display.launch.py model:=/home/zhz/robot_arm_ws/src/myrobot_description/urdf/arm.urdf -->
