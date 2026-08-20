@@ -17,10 +17,13 @@ find_package(myrobot_interfaces REQUIRED)
 # 可执行文件
 add_executable(test_moveit src/test_moveit.cpp)
 add_executable(commander_template src/commander_template.cpp)
+add_executable(grasp_demo src/grasp_demo.cpp)
 ament_target_dependencies(test_moveit rclcpp moveit_ros_planning_interface)
 ament_target_dependencies(commander_template rclcpp moveit_ros_planning_interface example_interfaces myrobot_interfaces)
+ament_target_dependencies(grasp_demo rclcpp moveit_ros_planning_interface)
 install(TARGETS test_moveit
   commander_template
+  grasp_demo
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
