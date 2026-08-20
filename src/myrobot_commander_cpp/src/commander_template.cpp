@@ -3,10 +3,12 @@
 #include "example_interfaces/msg/bool.hpp"
 #include "example_interfaces/msg/float64_multi_array.hpp"
 #include "tf2/LinearMath/Quaternion.h"
+#include "myrobot_interfaces/msg/pose_command.hpp"
 
 using Bool = example_interfaces::msg::Bool;
 using FloatArray = example_interfaces::msg::Float64MultiArray;
 using MoveGroupInterface = moveit::planning_interface::MoveGroupInterface;
+using PoseCmd = myrobot_interfaces::msg::PoseCommand;
 using namespace std::placeholders;
 class Commander 
 {
@@ -23,6 +25,8 @@ public:
             "open_gripper",10,std::bind(&Commander::OPenGripperCallback,this,_1));
         joint_cmd_sub_ = node_->create_subscription<FloatArray>(
             "joint_command",10,std::bind(&Commander::JointCmdCallback,this,_1));
+        pose_cmd_sub_ = node_->create_subscription<PoseCmd>(
+            "pose_command",10,std::bind(&Commander::PoseCmdCallback,this,_1));
     }
     void goToNamedTarget(const std::string &name)
     {
@@ -37,7 +41,7 @@ public:
         planAndExecute(arm_);
     }
     void goToPoseTarget(double x,double y,double z,double roll,
-                        double pitch, double yaw,bool cartian_path = false)
+                        double pitch, double yaw,bool cartesian_path = false)
     {
         tf2::Quaternion qtn;
         qtn.setRPY(roll,pitch,yaw);
@@ -54,7 +58,7 @@ public:
         target_pose.pose.orientation.w = qtn.getW();
 
         arm_->setStartStateToCurrentState();
-        if(!cartian_path)
+        if(!cartesian_path)
         {
             arm_->setPoseTarget(target_pose);   
             planAndExecute(arm_);
@@ -130,11 +134,18 @@ private:
             goToJointTarget(joints);
         }
     }
+    void PoseCmdCallback(const PoseCmd &msg)
+    {
+        goToPoseTarget(msg.x,msg.y,msg.z,msg.roll,msg.pitch,msg.yaw,msg.cartesian_path);
+    }
+
     std::shared_ptr<rclcpp::Node> node_;
     std::shared_ptr<MoveGroupInterface> arm_;
     std::shared_ptr<MoveGroupInterface> gripper_; 
     rclcpp::Subscription<Bool>::SharedPtr Open_gripper_sub_;
     rclcpp::Subscription<FloatArray>::SharedPtr joint_cmd_sub_;
+    rclcpp::Subscription<PoseCmd>::SharedPtr pose_cmd_sub_;
+
 };
 
 

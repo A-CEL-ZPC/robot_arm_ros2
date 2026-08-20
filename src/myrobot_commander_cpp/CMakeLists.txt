@@ -13,11 +13,12 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(example_interfaces REQUIRED)
+find_package(myrobot_interfaces REQUIRED)
 # 可执行文件
 add_executable(test_moveit src/test_moveit.cpp)
 add_executable(commander_template src/commander_template.cpp)
 ament_target_dependencies(test_moveit rclcpp moveit_ros_planning_interface)
-ament_target_dependencies(commander_template rclcpp moveit_ros_planning_interface example_interfaces)
+ament_target_dependencies(commander_template rclcpp moveit_ros_planning_interface example_interfaces myrobot_interfaces)
 install(TARGETS test_moveit
   commander_template
   DESTINATION lib/${PROJECT_NAME})
