@@ -31,12 +31,14 @@ public:
     void goToNamedTarget(const std::string &name)
     {
         arm_->setStartStateToCurrentState();
+        arm_->clearPoseTargets();   // 清除残留的位姿目标，避免与命名目标混合
         arm_->setNamedTarget(name);
         planAndExecute(arm_);
     }
     void goToJointTarget(const std::vector<double> &joint)
     {
         arm_->setStartStateToCurrentState();
+        arm_->clearPoseTargets();   // 清除残留的位姿目标，避免与关节目标混合
         arm_->setJointValueTarget(joint);
         planAndExecute(arm_);
     }
@@ -58,6 +60,7 @@ public:
         target_pose.pose.orientation.w = qtn.getW();
 
         arm_->setStartStateToCurrentState();
+        arm_->clearPoseTargets();   // 清除旧的位姿目标，避免与本次目标混合
         if(!cartesian_path)
         {
             arm_->setPoseTarget(target_pose);   
