@@ -14,6 +14,16 @@
          initial_positions_file="$(find myrobot_description)/urdf/initial_positions.yaml"
          sim_mode="$(arg sim_mode)"/>
 
+    <!-- Gazebo 模式：加载控制插件（gzserver 内部自建 controller_manager） -->
+    <xacro:property name="sim_mode_value" value="$(arg sim_mode)"/>
+    <xacro:if value="${sim_mode_value == 'gazebo'}">
+        <gazebo>
+            <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+                <parameters>$(find myrobot_gazebo)/config/ros2_controllers.yaml</parameters>
+            </plugin>
+        </gazebo>
+    </xacro:if>
+
     <joint name="gripper_base_joint" type="fixed">
         <parent link="tool_link"/>
         <child link="gripper_base_link"/>

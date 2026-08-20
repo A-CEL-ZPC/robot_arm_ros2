@@ -29,28 +29,22 @@
         <arg name="gui" value="$(var gui)"/>
     </include>
 
-    <!-- 3. 把机器人模型放进 Gazebo -->
+    <!-- 3. 把机器人模型放进 Gazebo（URDF 中的 <gazebo> 插件块会在
+             gzserver 内部自建 controller_manager 并加载控制器配置） -->
     <node pkg="gazebo_ros" exec="spawn_entity.py" output="screen"
           args="-topic robot_description -entity my_robot -x 0 -y 0 -z 0.001"/>
 
-    <!-- 4. ros2_control 节点（控制 Gazebo 中的机器人） -->
-    <node pkg="controller_manager" exec="ros2_control_node" output="screen">
-        <param name="robot_description"
-               value="$(command 'xacro $(var urdf_path) sim_mode:=gazebo')"/>
-        <param from="$(find-pkg-share myrobot_gazebo)/config/ros2_controllers.yaml"/>
-    </node>
-
-    <!-- 5. 加载控制器 -->
+    <!-- 4. 加载控制器（spawner 会自动等待 gzserver 内的 controller_manager 就绪） -->
     <node pkg="controller_manager" exec="spawner" args="joint_state_broadcaster"/>
     <node pkg="controller_manager" exec="spawner" args="arm_controller"/>
     <node pkg="controller_manager" exec="spawner" args="gripper_controller"/>
 
-    <!-- 6. MoveIt 运动规划（复用 myrobot_moveit_config） -->
+    <!-- 5. MoveIt 运动规划（复用 myrobot_moveit_config） -->
     <include file="$(find-pkg-share myrobot_moveit_config)/launch/move_group.launch.py">
         <arg name="robot_state_publisher" value="false"/>
     </include>
 
-    <!-- 7. RViz 可视化 -->
+    <!-- 6. RViz 可视化 -->
     <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(var rviz_config_path)"/>
 
 </launch>
