@@ -1,9 +1,11 @@
 #include "rclcpp/rclcpp.hpp"
 #include "moveit/move_group_interface/move_group_interface.h"
 #include "example_interfaces/msg/bool.hpp"
+#include "example_interfaces/msg/float64_multi_array.hpp"
 #include "tf2/LinearMath/Quaternion.h"
 
 using Bool = example_interfaces::msg::Bool;
+using FloatArray = example_interfaces::msg::Float64MultiArray;
 using MoveGroupInterface = moveit::planning_interface::MoveGroupInterface;
 using namespace std::placeholders;
 class Commander 
@@ -18,7 +20,9 @@ public:
         gripper_ = std::make_shared<MoveGroupInterface>(node_,"gripper");
 
         Open_gripper_sub_ = node_->create_subscription<Bool>(
-                                    "open_gripper",10,std::bind(&Commander::OPenGripperCallback,this,_1));
+            "open_gripper",10,std::bind(&Commander::OPenGripperCallback,this,_1));
+        joint_cmd_sub_ = node_->create_subscription<FloatArray>(
+            "joint_command",10,std::bind(&Commander::JointCmdCallback,this,_1));
     }
     void goToNamedTarget(const std::string &name)
     {
@@ -118,10 +122,19 @@ private:
             close_gripper();
         }
     }
+    void JointCmdCallback(const FloatArray &msg)
+    {
+        auto joints = msg.data;
+        if(joints.size() == 6)
+        {
+            goToJointTarget(joints);
+        }
+    }
     std::shared_ptr<rclcpp::Node> node_;
     std::shared_ptr<MoveGroupInterface> arm_;
     std::shared_ptr<MoveGroupInterface> gripper_; 
     rclcpp::Subscription<Bool>::SharedPtr Open_gripper_sub_;
+    rclcpp::Subscription<FloatArray>::SharedPtr joint_cmd_sub_;
 };
 
 
