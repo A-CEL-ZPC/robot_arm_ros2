@@ -99,7 +99,7 @@ ros2 run myrobot_commander_cpp grasp_demo gazebo
 - 夹爪命名位姿：`gripper_open` / `gripper_close` / `gripper_half_close` / `gripper_grasp_5cm`
 
 ## 文档
-
+-可观看演示视频了解抓取功能
 - 详细使用手册（环境准备、逐模式操作、接口示例、调试命令、故障排查）：[使用手册.md](使用手册.md)
 
 ## 注意事项
