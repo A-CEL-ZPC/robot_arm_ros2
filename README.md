@@ -14,21 +14,21 @@
 ## 架构
 
 ```
-┌─────────────── myrobot.launch.xml (mock) ───────────────┐
-│ robot_state_publisher → TF                                │
-│ ros2_control_node（mock 硬件）→ joint_state_broadcaster   │
-│   ├── arm_controller     （6 轴轨迹控制器）                │
-│   └── gripper_controller （双指轨迹控制器）                │
-│ move_group（MoveIt 规划）＋ commander_template ＋ rviz2    │
-└──────────────────────────────────────────────────────────┘
+┌────────────── myrobot.launch.xml (mock) ──────────────┐
+│ robot_state_publisher → TF                              │
+│ ros2_control_node（mock 硬件）→ joint_state_broadcaster │
+│ ├── arm_controller     （6 轴轨迹控制器）               │
+│ └── gripper_controller （双指轨迹控制器）               │
+│ move_group（MoveIt 规划）＋ commander_template ＋ rviz2 │
+└───────────────────────────────────────────────────────┘
 
-┌─────────────── gazebo.launch.xml (物理) ────────────────┐
-│ gzserver（离线世界：桌面 + 目标方块）                      │
-│   └── gazebo_ros2_control 插件（gzserver 内建 controller  │
-│       manager，加载同一套 3 控制器）                       │
-│ robot_state_publisher ＋ move_group ＋ rviz2              │
-│ 方块附着插件 /gazebo_grasp_attach（稳定物理抓取）          │
-└──────────────────────────────────────────────────────────┘
+┌─────────────────── gazebo.launch.xml (物理) ───────────────────┐
+│ gzserver（离线世界：桌面 + 目标方块）                            │
+│ └── gazebo_ros2_control 插件（gzserver 内建 controller_manager， │
+│     加载同一套 3 控制器）                                        │
+│ robot_state_publisher ＋ move_group ＋ rviz2                     │
+│ 方块附着插件 /gazebo_grasp_attach（稳定物理抓取）                │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ## 目录结构
@@ -60,6 +60,11 @@ source install/setup.bash
 
 # 2. mock 仿真（终端 1）
 ros2 launch myrobot_bringup myrobot.launch.xml
+#    一键启动：robot_state_publisher、mock ros2_control_node、3 个控制器、
+#    move_group、commander_template、rviz2。
+#    启动后等几秒，确认 3 个控制器均为 active 再发命令：
+#    ros2 control list_controllers
+#    期望输出：joint_state_broadcaster / arm_controller / gripper_controller 均为 active
 
 # 3. 抓取演示（终端 2，mock 为默认模式）
 ros2 run myrobot_commander_cpp grasp_demo
