@@ -60,13 +60,21 @@ source install/setup.bash
 
 # 2. mock 仿真（终端 1）
 ros2 launch myrobot_bringup myrobot.launch.xml
-#    一键启动：robot_state_publisher、mock ros2_control_node、3 个控制器、
-#    move_group、commander_template、rviz2。
-#    启动后等几秒，确认 3 个控制器均为 active 再发命令：
-#    ros2 control list_controllers
-#    期望输出：joint_state_broadcaster / arm_controller / gripper_controller 均为 active
+#    启动后等几秒，3 个控制器 active 即可接收命令
 
-# 3. 抓取演示（终端 2，mock 为默认模式）
+# 3. 控制机械臂（终端 2）
+#    关节角控制（弧度，joint1~joint6）
+ros2 topic pub -1 /joint_command example_interfaces/msg/Float64MultiArray \
+  "{data: [0.0, 0.4, 0.8, 0.0, -0.4, 0.0]}"
+
+#    末端位姿控制（base_link 系，米/弧度；cartesian_path: true 走笛卡尔直线）
+ros2 topic pub -1 /pose_command myrobot_interfaces/msg/PoseCommand \
+  "{x: 0.65, y: 0.0, z: 0.63, roll: 3.14, pitch: 0.0, yaw: 0.0, cartesian_path: false}"
+
+#    夹爪开合（true=张开，false=闭合）
+ros2 topic pub -1 /open_gripper example_interfaces/msg/Bool "{data: true}"
+
+# 4. 一键抓取演示（mock 为默认模式；也可跳过第 3 步直接运行）
 ros2 run myrobot_commander_cpp grasp_demo
 
 # ── 或 Gazebo 物理仿真 ──
