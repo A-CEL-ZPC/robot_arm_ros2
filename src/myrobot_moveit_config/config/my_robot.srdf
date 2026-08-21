@@ -51,12 +51,15 @@
     </group_state>
     <group_state name="gripper_open" group="gripper">
         <joint name="gripper_left_finger_joint" value="0"/>
+        <joint name="gripper_right_finger_joint" value="0"/>
     </group_state>
     <group_state name="gripper_close" group="gripper">
         <joint name="gripper_left_finger_joint" value="0.06"/>
+        <joint name="gripper_right_finger_joint" value="-0.06"/>
     </group_state>
     <group_state name="gripper_half_close" group="gripper">
         <joint name="gripper_left_finger_joint" value="0.04"/>
+        <joint name="gripper_right_finger_joint" value="-0.04"/>
     </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="gripper" parent_link="tool_link" group="gripper" parent_group="arm"/>

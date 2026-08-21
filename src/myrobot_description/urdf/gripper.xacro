@@ -31,7 +31,7 @@
         </visual>
         <collision>
             <geometry>
-                <box size="0.2 0.06 0.08"/>
+                <box size="0.02 0.06 0.08"/>
             </geometry>
             <origin xyz="0.0 0.0 0.04" rpy="0.0 0.0 0.0"/>
         </collision>
@@ -52,7 +52,7 @@
         </visual>
         <collision>
             <geometry>
-                <box size="0.2 0.06 0.08"/>
+                <box size="0.02 0.06 0.08"/>
             </geometry>
             <origin xyz="0.0 0.0 0.04" rpy="0.0 0.0 0.0"/>
         </collision>
@@ -76,7 +76,9 @@
         <child link="gripper_right_finger_link"/>
         <origin xyz="0.07 0.0 0.02" rpy="0.0 0.0 0.0"/>
         <axis xyz="1 0.0 0.0"/>
-        <mimic joint="gripper_left_finger_joint" multiplier="-1.0"/>
+        <!-- 注意：不用 <mimic>！Gazebo 11 不执行 URDF mimic（右指会变成自由关节），
+             且 MoveIt 不会把 mimic 关节写入控制轨迹。右指由 ros2_control 显式控制，
+             目标值 = -左指（见 SRDF group_state 与 grasp_demo） -->
         <limit lower="-0.06" upper="0.0" effort="1000.0" velocity="1.0"/>
     </joint>
 </robot>

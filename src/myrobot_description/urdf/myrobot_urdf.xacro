@@ -29,4 +29,15 @@
         <child link="gripper_base_link"/>
         <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
     </joint>
+
+    <!-- 手指高摩擦（mu=5）：Gazebo 默认 mu=1 偏低，夹爪力控夹持时方块容易
+         从指间滑脱；提高摩擦后夹持更可靠（配合 POSITION_PID 力控夹爪） -->
+    <gazebo reference="gripper_left_finger_link">
+        <mu1>5.0</mu1>
+        <mu2>5.0</mu2>
+    </gazebo>
+    <gazebo reference="gripper_right_finger_link">
+        <mu1>5.0</mu1>
+        <mu2>5.0</mu2>
+    </gazebo>
 </robot>

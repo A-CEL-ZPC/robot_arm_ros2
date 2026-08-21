@@ -16,10 +16,13 @@
     <!-- gui: true=显示 Gazebo 窗口(默认) | false=无头运行 -->
     <arg name="gui" default="true"/>
 
-    <!-- 1. 机器人模型（sim_mode=gazebo 生成 Gazebo 硬件插件） -->
+    <!-- 1. 机器人模型（sim_mode=gazebo 生成 Gazebo 硬件插件）
+         注意：必须 use_sim_time=true —— gzserver 内 controller_manager 发布的
+         /joint_states 带仿真时间戳，move_group 若用墙钟会把状态判为过期 -->
     <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
         <param name="robot_description"
                value="$(command 'xacro $(var urdf_path) sim_mode:=gazebo')"/>
+        <param name="use_sim_time" value="true"/>
     </node>
 
     <!-- 2. 启动 Gazebo 并加载世界（地面+桌子+目标方块） -->
@@ -39,12 +42,15 @@
     <node pkg="controller_manager" exec="spawner" args="arm_controller"/>
     <node pkg="controller_manager" exec="spawner" args="gripper_controller"/>
 
-    <!-- 5. MoveIt 运动规划（复用 myrobot_moveit_config） -->
+    <!-- 5. MoveIt 运动规划（复用 myrobot_moveit_config；use_sim_time=true 与仿真时钟对齐） -->
     <include file="$(find-pkg-share myrobot_moveit_config)/launch/move_group.launch.py">
         <arg name="robot_state_publisher" value="false"/>
+        <arg name="use_sim_time" value="true"/>
     </include>
 
-    <!-- 6. RViz 可视化 -->
-    <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(var rviz_config_path)"/>
+    <!-- 6. RViz 可视化（仿真时钟） -->
+    <node pkg="rviz2" exec="rviz2" output="screen" args="-d $(var rviz_config_path)">
+        <param name="use_sim_time" value="true"/>
+    </node>
 
 </launch>

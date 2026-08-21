@@ -3,6 +3,7 @@
 
 initial_positions:
   gripper_left_finger_joint: 0
+  gripper_right_finger_joint: 0
   joint1: 0
   joint2: 0
   joint3: 0

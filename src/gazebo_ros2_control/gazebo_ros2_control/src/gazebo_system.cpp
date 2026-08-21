@@ -751,8 +751,12 @@ GazeboSystem::perform_command_mode_switch(
       if (interface_name ==
         (this->dataPtr->joint_names_[j] + "/" + hardware_interface::HW_IF_POSITION))
       {
+        // 注意：必须按关节选择控制方式（is_pos_pid[j]），不能直接用类级
+        // position_control_method_ —— 否则任一关节配置了 PID 增益会让所有关节
+        // 变成 POSITION_PID，未配置增益的关节输出力为 0（机械臂在重力下瘫软）。
         this->dataPtr->joint_control_methods_[j] |=
-          static_cast<ControlMethod_>(this->dataPtr->position_control_method_);
+          static_cast<ControlMethod_>(
+            this->dataPtr->is_pos_pid[j] ? POSITION_PID : POSITION);
       } else if (interface_name == // NOLINT
         (this->dataPtr->joint_names_[j] + "/" + hardware_interface::HW_IF_VELOCITY))
       {
@@ -882,5 +886,11 @@ hardware_interface::return_type GazeboSystem::write(
 }  // namespace gazebo_ros2_control
 
 #include "pluginlib/class_list_macros.hpp"  // NOLINT
+// 注意：必须注册在 gazebo_ros2_control::GazeboSystemInterface 基类下！
+// gazebo_ros2_control 插件（gzserver 内）用 ClassLoader<GazeboSystemInterface>
+// 加载硬件，之后经 ResourceManager::import_component() 直连导入；
+// 若注册为 hardware_interface::SystemInterface，gzserver 插件会报
+// "class ... with base class type ...GazeboSystemInterface does not exist"。
+// （GazeboSystemInterface 本身继承 hardware_interface::SystemInterface）
 PLUGINLIB_EXPORT_CLASS(
-  gazebo_ros2_control::GazeboSystem, hardware_interface::SystemInterface)
+  gazebo_ros2_control::GazeboSystem, gazebo_ros2_control::GazeboSystemInterface)
