@@ -6,7 +6,7 @@
   <description>
      An automatically generated package with all the configuration and launch files for using the my_robot with the MoveIt Motion Planning Framework
   </description>
-  <maintainer email="asan@todo.com">asan</maintainer>
+  <maintainer email="myrobot@todo.todo">MyRobot</maintainer>
 
   <license>BSD</license>
 
@@ -14,7 +14,7 @@
   <url type="bugtracker">https://github.com/ros-planning/moveit2/issues</url>
   <url type="repository">https://github.com/ros-planning/moveit2</url>
 
-  <author email="asan@todo.com">asan</author>
+  <author email="myrobot@todo.todo">MyRobot</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

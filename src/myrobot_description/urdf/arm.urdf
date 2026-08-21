@@ -136,4 +136,4 @@
 
 
 <!-- sudo apt install ros-humble-urdf-tutorial -->
-<!-- ros2 launch urdf_tutorial display.launch.py model:=/home/zhz/robot_arm_ws/src/myrobot_description/urdf/arm.urdf -->
+<!-- ros2 launch urdf_tutorial display.launch.py model:=~/robot_arm_ws/src/myrobot_description/urdf/arm.urdf -->

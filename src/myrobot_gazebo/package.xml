@@ -4,7 +4,7 @@
   <name>myrobot_gazebo</name>
   <version>0.0.0</version>
   <description>Gazebo 物理仿真包：机械臂在物理环境中的抓取仿真</description>
-  <maintainer email="3471308991@qq.com">zhz</maintainer>
+  <maintainer email="myrobot@todo.todo">MyRobot</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
