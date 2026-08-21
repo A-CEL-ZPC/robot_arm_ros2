@@ -61,6 +61,12 @@
         <joint name="gripper_left_finger_joint" value="0.04"/>
         <joint name="gripper_right_finger_joint" value="-0.04"/>
     </group_state>
+    <!-- 5 cm 方块的几何接触点是 ±0.035；多闭合 1 mm 提供轻微夹持力，
+         避免 half_close 的 1 cm 总穿透在 Gazebo 中把方块弹飞。 -->
+    <group_state name="gripper_grasp_5cm" group="gripper">
+        <joint name="gripper_left_finger_joint" value="0.0355"/>
+        <joint name="gripper_right_finger_joint" value="-0.0355"/>
+    </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="gripper" parent_link="tool_link" group="gripper" parent_group="arm"/>
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->

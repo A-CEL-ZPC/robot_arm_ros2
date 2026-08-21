@@ -1,205 +1,97 @@
-# MyRobot 六轴机械臂 ROS 2 工程
+# MyRobot
 
-基于 **ROS 2 Humble + MoveIt 2 + ros2_control** 的六自由度机械臂运动控制工程，包含机器人建模、系统一键启动、MoveIt 运动规划与 C++ 指挥官节点。
+基于 **ROS 2 Humble + MoveIt 2 + ros2_control + Gazebo Classic** 的六自由度机械臂（6 轴 + 二指夹爪）运动控制工程，支持虚拟仿真与物理仿真双模式，内置完整 pick-and-place 抓取演示。
 
-当前阶段为**仿真验证**：硬件使用 `mock_components/GenericSystem`（虚拟硬件），可在 RViz 中完成从规划到执行的全流程。
+## 特性
 
----
+- **双模式仿真**：`mock`（虚拟硬件，秒级启动，适合接口联调）与 `gazebo`（重力/碰撞/桌面/目标方块，完整物理验证）
+- **统一模型源**：单一 URDF/Xacro，`sim_mode` 参数一键切换硬件插件；关节初值由 YAML 驱动
+- **MoveIt 2 集成**：OMPL/CHOMP/Pilz 规划器、KDL 逆解、笛卡尔路径、Planning Scene 避障（桌面与目标方块自动同步）
+- **完整抓取演示**：`grasp_demo` 状态机实现 接近 → 张开 → 下降 → 轻夹 → 抬升 → 搬运 → 放置 → 释放，Gazebo 中通过抓取附着机制稳定完成物理 pick-and-place
+- **三话题控制面**：关节角 / 末端位姿（含笛卡尔直线）/ 夹爪开合，另支持直接调用控制器 Action
+- **离线自包含**：Gazebo 世界内联地面与光源，不依赖在线模型数据库
 
-## 一、系统架构
-
-```
-┌───────────────────────────── myrobot.launch.xml ─────────────────────────────┐
-│                                                                              │
-│  robot_state_publisher ──→ 发布 TF（从 URDF 读取 robot_description）          │
-│                                                                              │
-│  ros2_control_node ──→ 加载虚拟硬件 Arm，管理控制器                           │
-│    ├── joint_state_broadcaster   （关节状态发布）                             │
-│    ├── arm_controller            （六轴关节轨迹控制器）                       │
-│    └── gripper_controller        （夹爪轨迹控制器）                           │
-│                                                                              │
-│  move_group（include 自 myrobot_moveit_config）──→ 运动规划                   │
-│    ├── OMPL / CHOMP / Pilz 规划器 + KDL 逆解                                  │
-│    └── 接收 MoveGroupInterface 的规划/执行请求                                │
-│                                                                              │
-│  commander_template ──→ C++ 指挥官节点（订阅 /open_gripper 话题控制夹爪）     │
-│  rviz2 ──→ 可视化                                                             │
-└──────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 二、目录结构
+## 架构
 
 ```
-robot_arm_ws/
-├── src/
-│   ├── myrobot_description/          # 机器人模型（唯一模型源）
-│   │   ├── urdf/
-│   │   │   ├── myrobot_urdf.xacro          # 模型入口（6 轴机械臂 + 二指夹爪）
-│   │   │   ├── arm.xacro / gripper.xacro   # 连杆与关节定义
-│   │   │   ├── my_robot.ros2_control.xacro # ros2_control 硬件块（宏，初值读 YAML）
-│   │   │   └── initial_positions.yaml      # 关节初始位置（唯一来源）
-│   │   ├── launch/display.launch.xml       # 单独显示模型（RSP + JSP + RViz）
-│   │   └── rviz/urdf_config.rviz
-│   │
-│   ├── myrobot_bringup/               # 系统启动包
-│   │   ├── launch/myrobot.launch.xml  # 一键启动整套系统
-│   │   └── config/
-│   │       ├── ros2_controllers.yaml  # 控制器配置
-│   │       └── myrobot_bringup.rviz   # 系统 RViz 配置
-│   │
-│   ├── myrobot_moveit_config/         # MoveIt 配置（MoveIt Setup Assistant 生成）
-│   │   ├── config/
-│   │   │   ├── my_robot.srdf          # 规划组/预设位姿/碰撞矩阵
-│   │   │   ├── kinematics.yaml        # KDL 逆解
-│   │   │   ├── joint_limits.yaml      # 关节速度/加速度缩放
-│   │   │   ├── moveit_controllers.yaml# MoveIt ↔ 控制器映射
-│   │   │   └── my_robot.urdf.xacro    # 直接引用 description 的模型
-│   │   └── launch/                    # move_group / demo / rsp 等
-│   │
-│   └── myrobot_commander_cpp/         # C++ 指挥官包
-│       ├── src/test_moveit.cpp            # 入门示例：位姿/笛卡尔/关节/命名目标
-│       └── src/commander_template.cpp     # 指挥官模板：话题订阅控制夹爪开合
-│
-├── .vscode/c_cpp_properties.json      # VSCode C++ 智能提示（编译数据库）
-└── .gitignore
+┌─────────────── myrobot.launch.xml (mock) ───────────────┐
+│ robot_state_publisher → TF                                │
+│ ros2_control_node（mock 硬件）→ joint_state_broadcaster   │
+│   ├── arm_controller     （6 轴轨迹控制器）                │
+│   └── gripper_controller （双指轨迹控制器）                │
+│ move_group（MoveIt 规划）＋ commander_template ＋ rviz2    │
+└──────────────────────────────────────────────────────────┘
+
+┌─────────────── gazebo.launch.xml (物理) ────────────────┐
+│ gzserver（离线世界：桌面 + 目标方块）                      │
+│   └── gazebo_ros2_control 插件（gzserver 内建 controller  │
+│       manager，加载同一套 3 控制器）                       │
+│ robot_state_publisher ＋ move_group ＋ rviz2              │
+│ 方块附着插件 /gazebo_grasp_attach（稳定物理抓取）          │
+└──────────────────────────────────────────────────────────┘
 ```
 
----
+## 目录结构
 
-## 三、环境要求
+```
+src/
+├── myrobot_description      # 机器人模型（URDF/Xacro、ros2_control 描述、初值 YAML）
+├── myrobot_moveit_config    # MoveIt 配置（SRDF/运动学/规划器/控制器映射）
+├── myrobot_bringup          # mock 模式一键启动
+├── myrobot_gazebo           # Gazebo 世界、抓取附着插件、启动文件
+├── myrobot_commander_cpp    # 话题指挥节点、MoveIt 示例、grasp_demo
+├── myrobot_interfaces       # 自定义消息 PoseCommand
+└── gazebo_ros2_control      # 本地兼容补丁包（勿用 apt 覆盖，见"注意事项"）
+```
 
-- Ubuntu 22.04 + **ROS 2 Humble**
-- 已安装包：
+## 环境要求
+
+- Ubuntu 22.04 + ROS 2 Humble
+- 依赖：`ros-humble-{robot-state-publisher, rviz2, xacro, ros2-control, ros2-controllers, moveit, joint-state-publisher-gui, gazebo-ros-pkgs, gazebo-ros2-control}`
+
+## 快速开始
 
 ```bash
-sudo apt install ros-humble-robot-state-publisher ros-humble-rviz2 ros-humble-xacro \
-  ros-humble-ros2-control ros-humble-ros2-controllers ros-humble-moveit \
-  ros-humble-joint-state-publisher-gui
-```
-
-> 注：`mock_components` 随 `ros2_control` 安装。
-
----
-
-## 四、构建
-
-```bash
+# 1. 编译（必须在工作区根目录）
 cd ~/robot_arm_ws
 source /opt/ros/humble/setup.bash
-colcon build
+colcon build --symlink-install
 source install/setup.bash
-```
 
-> ⚠️ 必须在 `robot_arm_ws` 目录下执行 `colcon build`，不要在家目录执行，否则会生成遮蔽性的 `~/install` 导致包解析错乱。
-
----
-
-## 五、使用
-
-### 1. 一键启动整套系统
-
-```bash
+# 2. mock 仿真（终端 1）
 ros2 launch myrobot_bringup myrobot.launch.xml
+
+# 3. 抓取演示（终端 2，mock 为默认模式）
+ros2 run myrobot_commander_cpp grasp_demo
+
+# ── 或 Gazebo 物理仿真 ──
+# 终端 1
+ros2 launch myrobot_gazebo gazebo.launch.xml        # 无窗口加 gui:=false
+# 终端 2（等 3 控制器 active 后再运行）
+ros2 run myrobot_commander_cpp grasp_demo gazebo
 ```
 
-一次启动：robot_state_publisher、ros2_control_node、3 个控制器、move_group、commander_template、rviz2。
+抓取目标方块初始位于 `(0.65, 0, 0.45)`，演示将其搬运至 `(0.65, -0.157, 0.45)`；可用 `gz model -m target_box -p` 验证。
 
-### 2. 话题控制夹爪开合
+## 控制接口
 
-```bash
-# 张开（注意 YAML 冒号后必须加空格）
-ros2 topic pub -1 /open_gripper example_interfaces/msg/Bool "{data: true}"
-
-# 闭合
-ros2 topic pub -1 /open_gripper example_interfaces/msg/Bool "{data: false}"
-```
-
-launch 终端中 commander 会打印 `规划成功，开始执行` → `执行成功`。
-
-### 3. 单独运行指挥官
-
-```bash
-ros2 run myrobot_commander_cpp commander_template
-```
-
-### 4. 单独显示机器人模型
-
-```bash
-ros2 launch myrobot_description display.launch.xml
-```
-
-### 5. 完整 MoveIt Demo（含 RViz 运动规划面板）
-
-```bash
-ros2 launch myrobot_moveit_config demo.launch.py
-```
-
----
-
-## 六、机器人参数
-
-| 关节 | 类型 | 范围 |
+| 话题 | 类型 | 说明 |
 |---|---|---|
-| joint1 | revolute (Z) | ±3.14 rad |
-| joint2 | revolute (Y) | 0 ~ 2.5 rad |
-| joint3 | revolute (Y) | 0 ~ 2.5 rad |
-| joint4 | revolute (Z) | ±3.14 rad |
-| joint5 | revolute (Y) | ±1.57 rad |
-| joint6 | continuous (Z) | 无限位 |
-| gripper_left_finger_joint | prismatic | 0 ~ 0.06 m |
-| gripper_right_finger_joint | prismatic | mimic 左指（倍率 -1） |
+| `/joint_command` | `Float64MultiArray` | 6 关节角（弧度，joint1~joint6） |
+| `/pose_command` | `PoseCommand` | 末端位姿（`base_link` 系，`cartesian_path` 可切换笛卡尔直线） |
+| `/open_gripper` | `Bool` | 夹爪开合 |
 
-- 规划组：`arm`（6 关节）、`gripper`（夹爪）
-- 预设位姿（SRDF group_state）：`home` / `pose_1` / `pose_2` / `gripper_open` / `gripper_close` / `gripper_half_close`
-- 控制器：`joint_state_broadcaster`、`arm_controller`、`gripper_controller`（均为 joint_trajectory_controller）
-- 修改初始位姿：编辑 `src/myrobot_description/urdf/initial_positions.yaml` 后重新构建
+- 话题控制需先运行 `commander_template`（mock 已内置；Gazebo 需手动启动）
+- 直接调用控制器：`/arm_controller/follow_joint_trajectory`、`/gripper_controller/follow_joint_trajectory`（不经过 MoveIt 碰撞检查）
+- 夹爪命名位姿：`gripper_open` / `gripper_close` / `gripper_half_close` / `gripper_grasp_5cm`
 
----
+## 文档
 
-## 七、关键设计
+- 详细使用手册（环境准备、逐模式操作、接口示例、调试命令、故障排查）：[使用手册.md](使用手册.md)
 
-1. **单一模型源**：所有包统一引用 `myrobot_description` 的 `myrobot_urdf.xacro`，`ros2_control` 硬件块由 xacro 宏生成，初值由 `initial_positions.yaml` 驱动，改初值无需改代码。
-2. **仿真硬件**：`mock_components/GenericSystem` 提供位置接口的虚拟硬件，支持完整的规划-执行闭环；对接真实硬件时只需替换 URDF 中的 `<plugin>`。
-3. **VSCode 智能提示**：`.vscode/c_cpp_properties.json` 指向 colcon 生成的 `compile_commands.json`，新建/修改 C++ 后先 `colcon build --packages-select myrobot_commander_cpp` 再回编辑器。
+## 注意事项
 
----
-
-## 八、常见问题（FAQ）
-
-### 1. `Unrecognized entity of the type: param` / `SyntaxError (line 1)`
-
-- `<param>` 只能写在 `<node>` 内部，顶层 `<param>` 是 ROS 1 写法；
-- 第二条 SyntaxError 是 launch 把 XML 当 Python 解析的兜底报错，忽略即可；
-- 同时检查 `ros2 pkg prefix myrobot_bringup` 解析到的路径是否为当前工作区（谨防 `~/install` 等残留工作区遮蔽）。
-
-### 2. 找不到消息头文件（如 `example_interfaces/msg/bool.hpp`）
-
-- 确认 `CMakeLists.txt` 中同时有 `find_package(...)` **和** `ament_target_dependencies(...)`（只加前者不会添加 include 路径）；
-- ROS 2 消息头文件用 **`.hpp`**（C++ 接口），`.h` 是 C 接口。
-
-### 3. `ros2 topic pub` 报 `Failed to populate field`
-
-YAML 里**冒号后必须有空格**：`"{data: false}"` ✅，`"{data:false}"` ❌。
-
-### 4. rviz2 崩溃：`symbol lookup error: /snap/core20/...libpthread.so.0`
-
-终端环境被 snap 污染（如从 snap 版 VS Code 打开终端）。检查 `echo $LD_LIBRARY_PATH` 是否含 `/snap/` 路径，换干净终端运行。
-
-### 5. `$(command 'xacro ...')` 报 `executed command showed stderr output`
-
-launch 的 `$(command ...)` 对 stderr 敏感，被调用的命令不能向 stderr 打印任何内容（包括弃用警告）。
-
-### 6. 编译数据库不更新导致 VSCode 无补全
-
-改完 C++ 代码先 `colcon build --packages-select myrobot_commander_cpp`，再 `Ctrl+Shift+P → Developer: Reload Window`。
-
----
-
-## 九、开发路线
-
-- [ ] Gazebo 物理仿真（补 `<inertial>` 惯量，`mock_components` 换 `GazeboSystem`）
-- [ ] 真实硬件 hardware interface 插件（对接电机驱动）
-- [ ] 视觉抓取（相机 + MoveIt 感知 + 抓取状态机）
-- [ ] 完整 pick-and-place 应用
+1. `src/gazebo_ros2_control` 是适配 ros2_control 2.54 的本地补丁包，**禁止用 apt 版本覆盖**（apt 升级/重装会破坏 Gazebo 链路）
+2. 不要同时启动 mock 与 Gazebo（同名节点/控制器/话题冲突）
+3. Gazebo 的桌面、方块与抓取坐标是一套匹配参数，修改世界尺寸需同步 `grasp_demo.cpp`
+4. 停止后检查残留：`./stop_all.sh`；旧 `gzserver` 占用 11345 端口会导致新实例秒退

@@ -44,6 +44,8 @@
     <!-- 桌子：桌面高 0.4m，桌面上放目标方块 -->
     <model name="table">
       <pose>0.5 0 0 0 0 0</pose>
+      <!-- 固定工作台，避免动态桌体在地面上缓慢漂移并带走高摩擦目标方块。 -->
+      <static>true</static>
 
       <link name="table_top">
         <pose>0 0 0.4 0 0 0</pose>
@@ -203,6 +205,10 @@
           </inertia>
         </inertial>
       </link>
+      <plugin name="target_box_grasp_attachment" filename="libmyrobot_grasp_attach.so">
+        <robot_model>my_robot</robot_model>
+        <robot_link>hand_link</robot_link>
+      </plugin>
     </model>
 
   </world>

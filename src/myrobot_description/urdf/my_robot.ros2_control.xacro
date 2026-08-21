@@ -58,10 +58,7 @@
                 <!-- gazebo：力控（POSITION_PID，SetForce 夹持），避免 SetPosition
                      瞬移把抓取物体挤飞；mock：普通 position 接口 -->
                 <xacro:if value="${sim_mode == 'gazebo'}">
-                    <command_interface name="position_pid"/>
-                    <param name="pos_kp">500.0</param>
-                    <param name="pos_ki">0.0</param>
-                    <param name="pos_kd">15.0</param>
+                    <command_interface name="position"/>
                 </xacro:if>
                 <xacro:unless value="${sim_mode == 'gazebo'}">
                     <command_interface name="position"/>
@@ -75,10 +72,7 @@
                  由控制器按 -left 目标驱动（MoveIt 会经 mimic 推导右指目标值） -->
             <joint name="gripper_right_finger_joint">
                 <xacro:if value="${sim_mode == 'gazebo'}">
-                    <command_interface name="position_pid"/>
-                    <param name="pos_kp">500.0</param>
-                    <param name="pos_ki">0.0</param>
-                    <param name="pos_kd">15.0</param>
+                    <command_interface name="position"/>
                 </xacro:if>
                 <xacro:unless value="${sim_mode == 'gazebo'}">
                     <command_interface name="position"/>

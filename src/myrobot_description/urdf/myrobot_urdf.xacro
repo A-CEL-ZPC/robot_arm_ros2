@@ -17,6 +17,11 @@
     <!-- Gazebo 模式：加载控制插件（gzserver 内部自建 controller_manager） -->
     <xacro:property name="sim_mode_value" value="$(arg sim_mode)"/>
     <xacro:if value="${sim_mode_value == 'gazebo'}">
+        <!-- 锚定根链接；否则整个机械臂会在重力/关节反力下漂移，而 TF 仍把
+             base_link 当作固定世界坐标，导致规划位姿与 Gazebo 物理位姿分离。 -->
+        <gazebo reference="base_link">
+            <kinematic>true</kinematic>
+        </gazebo>
         <gazebo>
             <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
                 <parameters>$(find myrobot_gazebo)/config/ros2_controllers.yaml</parameters>

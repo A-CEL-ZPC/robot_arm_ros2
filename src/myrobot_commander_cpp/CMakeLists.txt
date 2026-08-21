@@ -12,6 +12,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
+find_package(moveit_msgs REQUIRED)
+find_package(shape_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 find_package(example_interfaces REQUIRED)
 find_package(myrobot_interfaces REQUIRED)
 # 可执行文件
@@ -20,7 +23,8 @@ add_executable(commander_template src/commander_template.cpp)
 add_executable(grasp_demo src/grasp_demo.cpp)
 ament_target_dependencies(test_moveit rclcpp moveit_ros_planning_interface)
 ament_target_dependencies(commander_template rclcpp moveit_ros_planning_interface example_interfaces myrobot_interfaces)
-ament_target_dependencies(grasp_demo rclcpp moveit_ros_planning_interface)
+ament_target_dependencies(grasp_demo
+  rclcpp moveit_ros_planning_interface moveit_msgs shape_msgs std_srvs)
 install(TARGETS test_moveit
   commander_template
   grasp_demo
